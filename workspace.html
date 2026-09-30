@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>서울특별시 서초구 양재동 274-7 · 도시건축 마스터</title>
+<link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+<div class="ws">
+  <div class="uf-topwrap">
+    <header class="ws-header">
+      <div class="uf-brand">
+        <span class="uf-logo" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 5v10l-10 5-10-5V7l10-5Zm0 10 10-5M12 12 2 7m10 5v10"></path></svg></span>
+        <span class="uf-name">도시건축 마스터<small>URBAN MASTER</small></span>
+        <a class="home" href="index.html">← 프로젝트</a>
+      </div>
+      <div class="uf-title"><input aria-label="프로젝트 이름" placeholder="프로젝트 이름" value="서울특별시 서초구 양재동 274-7" /></div>
+      <a class="home uf-help" href="help.html">도움말</a>
+      <span class="ws-save">자동 저장</span>
+    </header>
+    <nav class="stepbar" aria-label="진행 단계">
+      <div class="stepbar-track">
+        <a class="step active" href="workspace.html"><i>01</i><span class="step-label">대상지</span></a>
+        <a class="step" href="#"><i>02</i><span class="step-label">현황·규제</span></a>
+        <a class="step" href="#"><i>03</i><span class="step-label">사업방식·공공기여</span></a>
+        <a class="step" href="#"><i>04</i><span class="step-label">설계</span></a>
+        <a class="step" href="#"><i>05</i><span class="step-label">기반시설</span></a>
+        <a class="step" href="#"><i>06</i><span class="step-label">시뮬레이션</span></a>
+        <a class="step" href="#"><i>07</i><span class="step-label">보고서</span></a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="ws-main">
+    <div class="ws-col ws-col--left">
+      <div class="ws-guide"><button type="button" class="vg-btn"><span aria-hidden="true">?</span> 사용법</button></div>
+      <div class="si-heading">
+        <p class="eyebrow">등록된 대상지 · 확정됨</p>
+        <h1>서초구 양재동 274-7</h1>
+        <p>필지를 더하거나 빼려면 아래에서 검색하거나 지도에서 누르세요.</p>
+      </div>
+      <div role="tablist" aria-label="대상지 입력방식" class="si-tabs">
+        <button role="tab" aria-selected="true">주소·지번 검색</button>
+        <button role="tab" aria-selected="false">지도에서 선택</button>
+        <button role="tab" aria-selected="false">파일 업로드</button>
+      </div>
+      <section aria-labelledby="parcel-search-title">
+        <h2 id="parcel-search-title" style="font-size:17px;margin:0 0 8px;">주소·지번으로 대상지 찾기</h2>
+        <form class="juso-form" onsubmit="return false">
+          <label class="pj-sr" for="juso">도로명주소 또는 지번</label>
+          <input id="juso" placeholder="예) 테헤란로26길 12 · 역삼동 736-56" autocomplete="off" spellcheck="false" />
+          <button type="submit" class="btn btn--sm">검색</button>
+        </form>
+        <p class="note">주소를 고르면 지적경계·면적 확인 카드가 열립니다.</p>
+      </section>
+    </div>
+
+    <div class="ws-col ws-col--center">
+      <div class="site-map-mock">
+        <div>
+          <b>지도 영역 (데모)</b>
+          실제 서비스는 VWorld 기반 MapLibre 지도 위에 필지 경계를 표시합니다.<br />
+          이 클론에서는 지적도(WFS) 데이터 접근 권한이 없어 정적 자리표시자로 대체했습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="ws-col ws-col--right">
+      <section class="site-sum">
+        <div class="area-total"><span>합산 대지면적</span><b>304.6㎡</b></div>
+        <div class="area-total"><span class="sub">지적경계 계산면적</span><span class="sub">305.1㎡</span></div>
+        <div class="site-sum-act">
+          <button type="button" class="btn">대상지 다시 확정 · 현황·규제로</button>
+          <p class="note">1개 필지 · 304.6㎡로 확정합니다.</p>
+        </div>
+      </section>
+
+      <div class="card jd-card">
+        <h3>공동개발(권장 또는 지정필지)</h3>
+        <p class="note" style="margin:0 0 6px;">지구단위계획 <b>획지 2139</b> 안에 있습니다.</p>
+        <div class="jd-limits">
+          <div><span>기준용적률</span><b>200% 이하</b></div>
+          <div><span>허용용적률</span><b>220% 이하</b></div>
+          <div><span>상한용적률</span><b>법적용적률 2배이하</b></div>
+          <div><span>최고높이</span><b>25m이하</b></div>
+          <div><span>건폐율</span><b>60%이하</b></div>
+          <div><span>최대 개발규모</span><b>1,000㎡이하</b></div>
+          <div class="jd-inc"><span>인센티브</span><b>최대 +20%p</b></div>
+        </div>
+        <details class="ws-more">
+          <summary>같은 획지 필지 보기 (8필지)</summary>
+          <ul class="jd-list">
+            <li>서울특별시 서초구 양재동 274</li>
+            <li>서울특별시 서초구 양재동 274-1</li>
+            <li>서울특별시 서초구 양재동 274-2</li>
+            <li>서울특별시 서초구 양재동 274-3</li>
+            <li>서울특별시 서초구 양재동 274-4</li>
+            <li>서울특별시 서초구 양재동 274-5</li>
+            <li>서울특별시 서초구 양재동 274-6</li>
+            <li>서울특별시 서초구 양재동 274-8</li>
+          </ul>
+        </details>
+        <details class="ws-more">
+          <summary>출처·한계</summary>
+          <p>획지·규제값은 서울도시공간포털(UPIS) 조회 결과 예시입니다 — 실제 적용은 지구단위계획 결정도서로 확인하세요. (이 클론은 데모 데이터입니다.)</p>
+        </details>
+      </div>
+
+      <section aria-labelledby="sel-title">
+        <h3 id="sel-title" style="font-size:16px;margin:4px 0 8px;">선택한 대상지 필지 (1)</h3>
+        <div class="parcel-item">
+          <input aria-label="대상지 포함" type="checkbox" checked style="margin-top:3px" />
+          <div class="body">
+            <div class="addr">서초구 양재동 274-7</div>
+            <div class="meta">서울특별시 서초구 양재동 274-7</div>
+            <div class="meta">304.6㎡</div>
+          </div>
+          <button type="button" class="btn btn--danger btn--sm">제거</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="ws-footer">
+    <a class="btn btn--ghost" href="index.html">← 목록</a>
+    <a class="btn" href="#" onclick="alert('데모에서는 다음 단계가 구현되지 않았습니다.');return false;">다음: 현황·규제 →</a>
+  </div>
+</div>
+</body>
+</html>
