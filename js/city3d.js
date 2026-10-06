@@ -20,14 +20,14 @@
 
     // ground grid plane
     const groundGeo = new THREE.PlaneGeometry(14, 14, 14, 14);
-    const groundMat = new THREE.MeshBasicMaterial({ color: 0xd8dee6, wireframe: true, transparent: true, opacity: 0.5 });
+    const groundMat = new THREE.MeshBasicMaterial({ color: 0x3a3a42, wireframe: true, transparent: true, opacity: 0.6 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     group.add(ground);
 
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0xe7ebf0, roughness: 1 });
-    const edgeMat = new THREE.LineBasicMaterial({ color: 0xb7c0cc });
-    const highlightMat = new THREE.MeshStandardMaterial({ color: 0x1d5fd6, roughness: 0.6 });
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x2a2a31, roughness: 1 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x55555f });
+    const highlightMat = new THREE.MeshStandardMaterial({ color: 0xff3d8b, emissive: 0x551029, roughness: 0.5 });
 
     const cols = 7, rows = 7, cell = 1.5;
     let highlightBuilding = null;
