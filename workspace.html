@@ -3,8 +3,20 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>서울특별시 서초구 양재동 274-7 · marspace</title>
+<title>대상지 · marspace</title>
 <link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(0.85) contrast(0.95) saturate(0.6); }
+  .leaflet-container { background: #0b0b0d; }
+  .site-map-pin { width: 14px; height: 14px; border-radius: 50%; background: #ff3d8b; border: 2px solid #fff; box-shadow: 0 0 0 4px #ff3d8b44; }
+  .ws-col--right .parcel-item { margin-bottom: 8px; }
+  .parcel-empty { color: var(--ds-text-2); font-size: 13px; padding: 14px; border: 1px dashed var(--ds-line-strong); border-radius: 10px; text-align: center; }
+  .si-tabs button:disabled { opacity: .5; cursor: default; }
+  .search-status { font-size: 12.5px; margin-top: 8px; min-height: 18px; }
+  .search-status.err { color: #ffb4c8; }
+  .btn:disabled { background: #3a3a42; color: #8a8a94; cursor: not-allowed; }
+</style>
 </head>
 <body>
 <div class="ws">
@@ -17,7 +29,7 @@
       </div>
       <div class="uf-title"><input aria-label="프로젝트 이름" placeholder="프로젝트 이름" value="서울특별시 서초구 양재동 274-7" /></div>
       <a class="home uf-help" href="help.html">도움말</a>
-      <span class="ws-save">자동 저장</span>
+      <span class="ws-save" id="save-status">자동 저장</span>
     </header>
     <nav class="stepbar" aria-label="진행 단계">
       <div class="stepbar-track">
@@ -36,23 +48,26 @@
     <div class="ws-col ws-col--left">
       <div class="ws-guide"><button type="button" class="vg-btn"><span aria-hidden="true">?</span> 사용법</button></div>
       <div class="si-heading">
-        <p class="eyebrow">등록된 대상지 · 확정됨</p>
-        <h1>서초구 양재동 274-7</h1>
-        <p>필지를 더하거나 빼려면 아래에서 검색하거나 지도에서 누르세요.</p>
+        <p class="eyebrow" id="site-eyebrow">등록된 대상지</p>
+        <h1 id="site-title">서초구 양재동 274-7</h1>
+        <p>주소를 검색하거나 지도를 눌러 대상지 위치를 추가하세요.</p>
       </div>
       <div role="tablist" aria-label="대상지 입력방식" class="si-tabs">
-        <button role="tab" aria-selected="true">주소·지번 검색</button>
-        <button role="tab" aria-selected="false">지도에서 선택</button>
-        <button role="tab" aria-selected="false">파일 업로드</button>
+        <button role="tab" id="tab-search" aria-selected="true">주소·지번 검색</button>
+        <button role="tab" id="tab-map" aria-selected="false">지도에서 선택</button>
+        <button role="tab" aria-selected="false" disabled title="준비 중">파일 업로드</button>
       </div>
-      <section aria-labelledby="parcel-search-title">
+      <section id="search-panel" aria-labelledby="parcel-search-title">
         <h2 id="parcel-search-title" style="font-size:17px;margin:0 0 8px;">주소·지번으로 대상지 찾기</h2>
-        <form class="juso-form" onsubmit="return false">
+        <form class="juso-form" id="juso-form">
           <label class="pj-sr" for="juso">도로명주소 또는 지번</label>
           <input id="juso" placeholder="예) 테헤란로26길 12 · 역삼동 736-56" autocomplete="off" spellcheck="false" />
           <button type="submit" class="btn btn--sm">검색</button>
         </form>
-        <p class="note">주소를 고르면 지적경계·면적 확인 카드가 열립니다.</p>
+        <div class="search-status" id="search-status"></div>
+      </section>
+      <section id="map-panel" hidden>
+        <p class="note" style="margin-top:0;">지도에서 원하는 위치를 누르면 대상지로 추가됩니다. 다시 누르면 같은 위치는 추가되지 않아요.</p>
       </section>
     </div>
 
@@ -62,17 +77,17 @@
 
     <div class="ws-col ws-col--right">
       <section class="site-sum">
-        <div class="area-total"><span>합산 대지면적</span><b>304.6㎡</b></div>
-        <div class="area-total"><span class="sub">지적경계 계산면적</span><span class="sub">305.1㎡</span></div>
+        <div class="area-total"><span>추가된 대상지</span><b id="count">0곳</b></div>
+        <div class="area-total"><span class="sub">대지면적 · 지적경계</span><span class="sub">데이터 연결 필요</span></div>
         <div class="site-sum-act">
-          <button type="button" class="btn">대상지 다시 확정 · 현황·규제로</button>
-          <p class="note">1개 필지 · 304.6㎡로 확정합니다.</p>
+          <button type="button" class="btn" id="confirm-btn" disabled>대상지 확정 · 현황·규제로</button>
+          <p class="note" id="confirm-note">대상지를 1곳 이상 추가하면 확정할 수 있어요.</p>
         </div>
       </section>
 
       <div class="card jd-card">
         <h3>공동개발(권장 또는 지정필지)</h3>
-        <p class="note" style="margin:0 0 6px;">지구단위계획 <b>획지 2139</b> 안에 있습니다.</p>
+        <p class="note" style="margin:0 0 6px;">아래 값은 예시입니다. 실제 규제값은 지구단위계획 결정도서로 확인하세요.</p>
         <div class="jd-limits">
           <div><span>기준용적률</span><b>200% 이하</b></div>
           <div><span>허용용적률</span><b>220% 이하</b></div>
@@ -82,69 +97,207 @@
           <div><span>최대 개발규모</span><b>1,000㎡이하</b></div>
           <div class="jd-inc"><span>인센티브</span><b>최대 +20%p</b></div>
         </div>
-        <details class="ws-more">
-          <summary>같은 획지 필지 보기 (8필지)</summary>
-          <ul class="jd-list">
-            <li>서울특별시 서초구 양재동 274</li>
-            <li>서울특별시 서초구 양재동 274-1</li>
-            <li>서울특별시 서초구 양재동 274-2</li>
-            <li>서울특별시 서초구 양재동 274-3</li>
-            <li>서울특별시 서초구 양재동 274-4</li>
-            <li>서울특별시 서초구 양재동 274-5</li>
-            <li>서울특별시 서초구 양재동 274-6</li>
-            <li>서울특별시 서초구 양재동 274-8</li>
-          </ul>
-        </details>
-        <details class="ws-more">
-          <summary>출처·한계</summary>
-          <p>획지·규제값은 서울도시공간포털(UPIS) 조회 결과 예시입니다 — 실제 적용은 지구단위계획 결정도서로 확인하세요. (이 클론은 데모 데이터입니다.)</p>
-        </details>
       </div>
 
       <section aria-labelledby="sel-title">
-        <h3 id="sel-title" style="font-size:16px;margin:4px 0 8px;">선택한 대상지 필지 (1)</h3>
-        <div class="parcel-item">
-          <input aria-label="대상지 포함" type="checkbox" checked style="margin-top:3px" />
-          <div class="body">
-            <div class="addr">서초구 양재동 274-7</div>
-            <div class="meta">서울특별시 서초구 양재동 274-7</div>
-            <div class="meta">304.6㎡</div>
-          </div>
-          <button type="button" class="btn btn--danger btn--sm">제거</button>
-        </div>
+        <h3 id="sel-title" style="font-size:16px;margin:4px 0 8px;">선택한 대상지 (<span id="list-count">0</span>)</h3>
+        <div id="parcel-list"></div>
       </section>
     </div>
   </div>
 
   <div class="ws-footer">
     <a class="btn btn--ghost" href="index.html">← 목록</a>
-    <a class="btn" href="#" onclick="alert('데모에서는 다음 단계가 구현되지 않았습니다.');return false;">다음: 현황·규제 →</a>
+    <a class="btn" href="#" onclick="alert('다음 단계는 아직 구현되지 않았습니다.');return false;">다음: 현황·규제 →</a>
   </div>
 </div>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-  .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(0.85) contrast(0.95) saturate(0.6); }
-  .leaflet-container { background: #0b0b0d; }
-</style>
+
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  (async function () {
-    const map = L.map("map", { zoomControl: true }).setView([37.5665, 126.978], 16);
+  (function () {
+    const STORAGE_KEY = "marspace-sites-v1";
+    const DEFAULT_CENTER = [37.4836, 127.0327];
+    let sites = [];
+    let mode = "search";
+
+    const map = L.map("map", { zoomControl: true }).setView(DEFAULT_CENTER, 17);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors",
     }).addTo(map);
 
-    try {
-      const res = await fetch("/api/geocode?address=" + encodeURIComponent("서울특별시 서초구 양재동 274-7"));
-      const data = await res.json();
-      if (data.ok && data.result) {
-        const p = data.result.result.point;
-        const latlng = [Number(p.y), Number(p.x)];
-        map.setView(latlng, 17);
-        L.circleMarker(latlng, { radius: 9, color: "#ff3d8b", weight: 3, fillColor: "#ff3d8b", fillOpacity: 0.35 }).addTo(map);
+    const $ = (id) => document.getElementById(id);
+
+    function loadSaved() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        sites = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        sites = [];
       }
-    } catch (e) {}
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sites));
+        $("save-status").textContent = "자동 저장됨";
+      } catch (e) {
+        $("save-status").textContent = "저장 불가";
+      }
+    }
+
+    function makeIcon() {
+      return L.divIcon({ className: "", html: '<div class="site-map-pin"></div>', iconSize: [14, 14], iconAnchor: [7, 7] });
+    }
+
+    function render() {
+      const list = $("parcel-list");
+      list.innerHTML = "";
+      if (sites.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "parcel-empty";
+        empty.textContent = "아직 선택한 대상지가 없습니다.";
+        list.appendChild(empty);
+      }
+      sites.forEach((s, i) => {
+        const item = document.createElement("div");
+        item.className = "parcel-item";
+        const body = document.createElement("div");
+        body.className = "body";
+        body.style.flex = "1";
+        const addr = document.createElement("div");
+        addr.className = "addr";
+        addr.textContent = s.label;
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = s.kind === "search" ? "주소 검색으로 추가" : "지도에서 선택";
+        const coord = document.createElement("div");
+        coord.className = "meta";
+        coord.textContent = s.lat.toFixed(5) + ", " + s.lng.toFixed(5);
+        body.append(addr, meta, coord);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn--danger btn--sm";
+        btn.textContent = "제거";
+        btn.addEventListener("click", () => removeSite(i));
+        item.append(body, btn);
+        list.appendChild(item);
+      });
+
+      $("count").textContent = sites.length + "곳";
+      $("list-count").textContent = sites.length;
+      const first = sites[0];
+      $("site-title").textContent = first ? first.label : "대상지를 추가하세요";
+      $("site-eyebrow").textContent = sites.length ? "등록된 대상지 · " + (sites.length) + "곳" : "대상지 등록 전";
+      $("confirm-btn").disabled = sites.length === 0;
+      $("confirm-note").textContent = sites.length
+        ? sites.length + "곳을 대상지로 확정합니다. 면적·규제 값은 데이터 연결 후 계산됩니다."
+        : "대상지를 1곳 이상 추가하면 확정할 수 있어요.";
+    }
+
+    function drawMarkers() {
+      markerLayer.clearLayers();
+      sites.forEach((s) => {
+        L.marker([s.lat, s.lng], { icon: makeIcon() }).addTo(markerLayer);
+      });
+    }
+
+    const markerLayer = L.layerGroup().addTo(map);
+
+    function addSite(site) {
+      const dup = sites.some((s) => Math.abs(s.lat - site.lat) < 1e-6 && Math.abs(s.lng - site.lng) < 1e-6);
+      if (dup) return false;
+      sites.push(site);
+      save();
+      render();
+      drawMarkers();
+      return true;
+    }
+
+    function removeSite(index) {
+      sites.splice(index, 1);
+      save();
+      render();
+      drawMarkers();
+    }
+
+    function setStatus(text, isError) {
+      const el = $("search-status");
+      el.textContent = text;
+      el.className = "search-status" + (isError ? " err" : "");
+    }
+
+    async function searchAddress(query) {
+      setStatus("검색 중…", false);
+      try {
+        const res = await fetch("/api/geocode?address=" + encodeURIComponent(query));
+        const data = await res.json();
+        if (!data.ok || !data.result) {
+          setStatus("주소를 찾지 못했습니다. 도로명주소나 지번으로 다시 입력해 주세요.", true);
+          return;
+        }
+        const point = data.result.result.point;
+        const site = {
+          label: data.result.refined.text,
+          lat: Number(point.y),
+          lng: Number(point.x),
+          kind: "search",
+        };
+        map.setView([site.lat, site.lng], 17);
+        const added = addSite(site);
+        setStatus(added ? "대상지를 추가했습니다." : "이미 추가된 위치입니다.", !added);
+      } catch (e) {
+        setStatus("검색 중 오류가 났습니다. 잠시 후 다시 시도해 주세요.", true);
+      }
+    }
+
+    map.on("click", (e) => {
+      if (mode !== "map") return;
+      const { lat, lng } = e.latlng;
+      const site = {
+        label: "지도 선택 위치 " + (sites.length + 1),
+        lat,
+        lng,
+        kind: "map",
+      };
+      addSite(site);
+    });
+
+    function setMode(next) {
+      mode = next;
+      const isSearch = next === "search";
+      $("tab-search").setAttribute("aria-selected", String(isSearch));
+      $("tab-map").setAttribute("aria-selected", String(!isSearch));
+      $("search-panel").hidden = !isSearch;
+      $("map-panel").hidden = isSearch;
+      $("map").style.cursor = isSearch ? "" : "crosshair";
+    }
+
+    $("tab-search").addEventListener("click", () => setMode("search"));
+    $("tab-map").addEventListener("click", () => setMode("map"));
+
+    $("juso-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = $("juso").value.trim();
+      if (q) searchAddress(q);
+    });
+
+    $("confirm-btn").addEventListener("click", () => {
+      if (sites.length === 0) return;
+      const now = new Date();
+      const stamp = now.getFullYear() + "." + (now.getMonth() + 1) + "." + now.getDate();
+      $("site-eyebrow").textContent = "등록된 대상지 · 확정됨 (" + stamp + ")";
+      $("confirm-note").textContent = sites.length + "곳으로 확정했습니다 (" + stamp + ").";
+    });
+
+    loadSaved();
+    render();
+    drawMarkers();
+    if (sites.length) {
+      const first = sites[0];
+      map.setView([first.lat, first.lng], 17);
+    }
+    setMode("search");
   })();
 </script>
 </body>
