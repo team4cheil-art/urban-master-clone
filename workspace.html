@@ -16,6 +16,13 @@
   .search-status { font-size: 12.5px; margin-top: 8px; min-height: 18px; }
   .search-status.err { color: #ffb4c8; }
   .btn:disabled { background: #3a3a42; color: #8a8a94; cursor: not-allowed; }
+  .sr-card { margin-top: 12px; border: 1px solid var(--ds-line-strong); border-radius: 14px; padding: 16px; background: #15151a; }
+  .sr-cap { color: var(--ds-brand); font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+  .sr-addr { font-size: 15px; font-weight: 700; margin: 0 0 4px; line-height: 1.4; }
+  .sr-coord { color: var(--ds-text-2); font-size: 12px; margin: 0 0 10px; font-variant-numeric: tabular-nums; }
+  .sr-actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .sr-alt { background: none; border: 0; color: var(--ds-text-2); font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0; }
+  .sr-alt:hover { color: var(--ds-brand); }
 </style>
 </head>
 <body>
@@ -65,6 +72,7 @@
           <button type="submit" class="btn btn--sm">검색</button>
         </form>
         <div class="search-status" id="search-status"></div>
+        <div id="search-result"></div>
       </section>
       <section id="map-panel" hidden>
         <p class="note" style="margin-top:0;">지도에서 원하는 위치를 누르면 대상지로 추가됩니다. 다시 누르면 같은 위치는 추가되지 않아요.</p>
@@ -80,7 +88,7 @@
         <div class="area-total"><span>추가된 대상지</span><b id="count">0곳</b></div>
         <div class="area-total"><span class="sub">대지면적 · 지적경계</span><span class="sub">데이터 연결 필요</span></div>
         <div class="site-sum-act">
-          <button type="button" class="btn" id="confirm-btn" disabled>대상지 확정 · 현황·규제로</button>
+          <button type="button" class="btn" id="confirm-btn" disabled>대상지 확정 · 현황·규제로 →</button>
           <p class="note" id="confirm-note">대상지를 1곳 이상 추가하면 확정할 수 있어요.</p>
         </div>
       </section>
@@ -227,6 +235,48 @@
       el.className = "search-status" + (isError ? " err" : "");
     }
 
+    function showResult(site) {
+      const box = $("search-result");
+      box.innerHTML = "";
+      const card = document.createElement("div");
+      card.className = "sr-card";
+      const cap = document.createElement("p");
+      cap.className = "sr-cap";
+      cap.textContent = "대상지를 찾았습니다";
+      const addr = document.createElement("p");
+      addr.className = "sr-addr";
+      addr.textContent = site.label;
+      const coord = document.createElement("p");
+      coord.className = "sr-coord";
+      coord.textContent = site.lat.toFixed(5) + ", " + site.lng.toFixed(5);
+      const note = document.createElement("p");
+      note.className = "note";
+      note.textContent = "면적·지번(PNU)·규제값은 지적 데이터 연결 후 표시됩니다.";
+      const actions = document.createElement("div");
+      actions.className = "sr-actions";
+      const start = document.createElement("button");
+      start.type = "button";
+      start.className = "btn";
+      start.textContent = "계획 시작하기 →";
+      start.addEventListener("click", () => {
+        const added = addSite(site);
+        setStatus(added ? "대상지를 등록했습니다." : "이미 등록된 위치입니다.", !added);
+        box.innerHTML = "";
+      });
+      const other = document.createElement("button");
+      other.type = "button";
+      other.className = "sr-alt";
+      other.textContent = "다른 대상지 찾기";
+      other.addEventListener("click", () => {
+        box.innerHTML = "";
+        $("juso").value = "";
+        $("juso").focus();
+      });
+      actions.append(start, other);
+      card.append(cap, addr, coord, note, actions);
+      box.appendChild(card);
+    }
+
     async function searchAddress(query) {
       setStatus("검색 중…", false);
       try {
@@ -244,8 +294,8 @@
           kind: "search",
         };
         map.setView([site.lat, site.lng], 17);
-        const added = addSite(site);
-        setStatus(added ? "대상지를 추가했습니다." : "이미 추가된 위치입니다.", !added);
+        setStatus("", false);
+        showResult(site);
       } catch (e) {
         setStatus("검색 중 오류가 났습니다. 잠시 후 다시 시도해 주세요.", true);
       }
