@@ -1,9 +1,7 @@
 """Vercel Python serverless function: GET /api/geocode?address=...
 
-Proxies to VWorld's address geocoder so the API key never reaches the
-browser and we sidestep VWorld's lack of CORS headers for direct fetch.
-Set VWORLD_KEY as an Environment Variable in the Vercel project settings
-(never commit it to the repo).
+Proxies to Kakao Local address search so the REST key stays server-side.
+Set KAKAO_REST_KEY as an Environment Variable in the Vercel project settings.
 """
 import json
 import os
@@ -11,7 +9,7 @@ import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler
 
-VWORLD_KEY = os.environ.get("VWORLD_KEY", "")
+KAKAO_REST_KEY = os.environ.get("KAKAO_REST_KEY", "")
 
 
 class handler(BaseHTTPRequestHandler):
@@ -31,25 +29,29 @@ class handler(BaseHTTPRequestHandler):
 
         if not address:
             return self._send_json(400, {"error": "address query param required"})
-        if not VWORLD_KEY:
-            return self._send_json(500, {"error": "VWORLD_KEY not configured"})
+        if not KAKAO_REST_KEY:
+            return self._send_json(500, {"error": "KAKAO_REST_KEY not configured"})
 
-        results = {}
-        for addr_type in ("road", "parcel"):
-            url = (
-                "https://api.vworld.kr/req/address?service=address&request=getcoord"
-                f"&key={VWORLD_KEY}&type={addr_type}&format=json"
-                f"&address={urllib.parse.quote(address)}"
-            )
-            try:
-                with urllib.request.urlopen(url, timeout=6) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                if data.get("response", {}).get("status") == "OK":
-                    results[addr_type] = data["response"]
-            except Exception as e:  # noqa: BLE001
-                results[addr_type + "_error"] = str(e)
+        url = (
+            "https://dapi.kakao.com/v2/local/search/address.json"
+            f"?query={urllib.parse.quote(address)}"
+        )
+        req = urllib.request.Request(url, headers={"Authorization": f"KakaoAK {KAKAO_REST_KEY}"})
+        try:
+            with urllib.request.urlopen(req, timeout=6) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:  # noqa: BLE001
+            return self._send_json(502, {"ok": False, "error": str(e)})
 
-        if "road" in results or "parcel" in results:
-            best = results.get("road") or results.get("parcel")
-            return self._send_json(200, {"ok": True, "result": best, "raw": results})
-        return self._send_json(200, {"ok": False, "raw": results})
+        docs = data.get("documents") or []
+        if not docs:
+            return self._send_json(200, {"ok": False, "raw": data})
+
+        doc = docs[0]
+        road = doc.get("road_address") or {}
+        label = road.get("address_name") or doc.get("address_name") or address
+        result = {
+            "refined": {"text": label},
+            "result": {"point": {"x": doc.get("x"), "y": doc.get("y")}},
+        }
+        return self._send_json(200, {"ok": True, "result": result})
