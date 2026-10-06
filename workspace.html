@@ -122,13 +122,17 @@
   </div>
 </div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(0.85) contrast(0.95) saturate(0.6); }
+  .leaflet-container { background: #0b0b0d; }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   (async function () {
     const map = L.map("map", { zoomControl: true }).setView([37.5665, 126.978], 16);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
+      attribution: "&copy; OpenStreetMap contributors",
     }).addTo(map);
 
     try {
