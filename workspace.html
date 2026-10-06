@@ -57,13 +57,7 @@
     </div>
 
     <div class="ws-col ws-col--center">
-      <div class="site-map-mock">
-        <div>
-          <b>지도 영역 (데모)</b>
-          실제 서비스는 VWorld 기반 MapLibre 지도 위에 필지 경계를 표시합니다.<br />
-          이 클론에서는 지적도(WFS) 데이터 접근 권한이 없어 정적 자리표시자로 대체했습니다.
-        </div>
-      </div>
+      <div id="map" class="site-map"></div>
     </div>
 
     <div class="ws-col ws-col--right">
@@ -127,5 +121,27 @@
     <a class="btn" href="#" onclick="alert('데모에서는 다음 단계가 구현되지 않았습니다.');return false;">다음: 현황·규제 →</a>
   </div>
 </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  (async function () {
+    const map = L.map("map", { zoomControl: true }).setView([37.5665, 126.978], 16);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap &copy; CARTO",
+    }).addTo(map);
+
+    try {
+      const res = await fetch("/api/geocode?address=" + encodeURIComponent("서울특별시 서초구 양재동 274-7"));
+      const data = await res.json();
+      if (data.ok && data.result) {
+        const p = data.result.result.point;
+        const latlng = [Number(p.y), Number(p.x)];
+        map.setView(latlng, 17);
+        L.circleMarker(latlng, { radius: 9, color: "#ff3d8b", weight: 3, fillColor: "#ff3d8b", fillOpacity: 0.35 }).addTo(map);
+      }
+    } catch (e) {}
+  })();
+</script>
 </body>
 </html>

@@ -246,8 +246,7 @@ html, body { margin: 0; padding: 0; background: #0b0b0d; }
 .btn--danger { background: var(--ds-brand-soft); color: var(--ds-brand); border: 1px solid #7a1f47; }
 .note { color: var(--ds-text-2); font-size: 12px; margin-top: 10px; line-height: 1.6; }
 
-.site-map-mock { position: absolute; inset: 0; display: grid; place-items: center; color: #6b7280; font-size: 13px; text-align: center; padding: 20px; }
-.site-map-mock b { display: block; color: var(--ds-text-2); font-size: 14px; margin-bottom: 6px; }
+.site-map { position: absolute; inset: 0; }
 
 .site-sum { border: 1px solid var(--ds-line-strong); border-radius: 14px; padding: 16px; background: #15151a; margin-bottom: 16px; }
 .area-total { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; }
