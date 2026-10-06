@@ -49,8 +49,9 @@ html, body { margin: 0; padding: 0; background: #0b0b0d; }
 .pj-brand { color: var(--pj-ink); letter-spacing: -.02em; align-items: center; gap: 12px;
   font-size: 18px; font-weight: 800; line-height: 1.2; text-decoration: none; display: inline-flex; }
 .pj-brand small { letter-spacing: .04em; color: var(--pj-muted); font-size: 10.5px; font-weight: 500; display: block; margin-top: 3px; }
-.pj-logo { color: #fff; background: linear-gradient(140deg, #ff6aa8 0%, #ff3d8b 100%); border-radius: 10px;
-  place-items: center; width: 36px; height: 36px; display: grid; box-shadow: 0 6px 18px #ff3d8b55; }
+.pj-logo { background: #fff url("../assets/logo.png") center / 82% no-repeat; border-radius: 10px;
+  width: 40px; height: 40px; display: block; flex: none; }
+.pj-logo svg, .uf-logo svg { display: none; }
 .pj-top-right { align-items: center; gap: 14px; display: flex; }
 .pj-help { color: var(--pj-ink-2); font-size: 14.5px; font-weight: 600; text-decoration: none; }
 .pj-help:hover { color: var(--pj-pink); }
@@ -202,8 +203,8 @@ html, body { margin: 0; padding: 0; background: #0b0b0d; }
 .uf-topwrap { background: #0b0b0d; border-bottom: 1px solid var(--ds-line-strong); }
 .ws-header { display: flex; align-items: center; gap: 16px; height: 60px; padding: 0 20px; }
 .uf-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; white-space: nowrap; }
-.uf-logo { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px;
-  background: linear-gradient(140deg,#ff6aa8 0%,#ff3d8b 100%); color: #fff; }
+.uf-logo { display: block; width: 34px; height: 34px; border-radius: 8px; flex: none;
+  background: #fff url("../assets/logo.png") center / 82% no-repeat; }
 .uf-name small { display: block; letter-spacing: .04em; color: var(--ds-text-2); font-size: 9px; font-weight: 500; }
 .uf-brand .home, .uf-help { color: var(--ds-text-2); font-size: 13px; text-decoration: none; font-weight: 600; margin-left: 8px; }
 .uf-brand .home:hover, .uf-help:hover { color: var(--ds-brand); }
